@@ -19,46 +19,46 @@ import itertools
 
 #____________________________________________________________________________________________________
 
-# SETTING UP CACHE
+# TASK 1: SETTING UP CACHE
 
-CACHE_FNAME = "SI206_final_project_cache.json"
+CACHE_FNAME = "SI206_final_cache.json"
 
 try:
 	cache_file = open(CACHE_FNAME,'r')
 	cache_contents = cache_file.read()
 	cache_file.close()
-	CACHE_DICTION = json.loads(cache_contents)
+	CACHE_DICTION2 = json.loads(cache_contents)
 except:
-	CACHE_DICTION = {}
+	CACHE_DICTION2 = {}
 
 #____________________________________________________________________________________________________
 
-# PULLING MOVIE SUGGESTIONS FROM OMDB
+# TASK 2: PULLING MOVIE SUGGESTIONS FROM OMDB
 
 def get_movies(user_query):
 
     # IF INPUTTED SEARCH QUERY IS CACHED
-	if user_query in CACHE_DICTION:
-		print("\nGetting movie suggestions from cached data...")
+	if user_query in CACHE_DICTION2:
+		#print("\nGetting movie suggestions from cached data...")
 
 		# GETTING WIKI SUGGESTIONS FROM CACHE DICTIONARY
-		movie_data = CACHE_DICTION[user_query]
+		movie_data = CACHE_DICTION2[user_query]
 
 	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 	# IF INPUTTED SEARCH QUERY IS NOT CACHED --- PULLING FROM WEB
 
 	else:
-		print("\nRetrieving movie suggestions from web...")
+		#print("\nRetrieving movie suggestions from web...")
 
 		# GETTING WIKI SUGGESTIONS
 		movie_data = omdb.title(user_query)
 
 		# CACHING LIST OF SUGGESTIONS
-		CACHE_DICTION[user_query] = movie_data
+		CACHE_DICTION2[user_query] = movie_data
 
 	cached_suggs = open(CACHE_FNAME, 'w')
-	cached_suggs.write(json.dumps(CACHE_DICTION))
+	cached_suggs.write(json.dumps(CACHE_DICTION2))
 	cached_suggs.close()
 
 	# RETURNING DICTIONARY OF SUGGESTIONS
@@ -66,7 +66,7 @@ def get_movies(user_query):
 
 #____________________________________________________________________________________________________
 
-# Running get_movies function based on user input
+# TASK 3: Running get_movies function based on user input
 
 in1 = input("Enter a movie title:  \n")
 getting_movie = get_movies(in1)
@@ -76,7 +76,7 @@ getting_movie = get_movies(in1)
 
 #____________________________________________________________________________________________________
 
-# CREATING A CLASS MOVIE
+# TASK 4: CREATING CLASS MOVIE
 
 class Movie(object):
 	def __init__(self, getting_movie):
@@ -99,54 +99,74 @@ class Movie(object):
 		return a+b+c+d+e
 
 	def get_director(self):
-		return self.director
+		if "," in self.director:
+			dir0 = self.director
+			dir1 = dir0.split(",")
+			dir2 = dir1[0]
+			if "(" in dir2:
+				dir3 = dir2.split("(")
+				dir4 = dir3[0]
+				return dir4
+			else:
+				return dir2
+		else:
+			if "(" in self.director:
+				dir3 = self.director
+				dir4 = dir3.split("(")
+				dir5 = dir4[0]
+				return dir6
+			else:
+				return self.director
 
 	def get_writer(self):
-		return self.writer
+		if "," in self.writer:
+			wri0 = self.writer
+			wri1 = wri0.split(",")
+			wri2 = wri1[0]
+			if "(" in wri2:
+				wri3 = wri2.split("(")
+				wri4 = wri3[0]
+				return wri4
+			else:
+				return wri2
+		else:
+			if "(" in self.writer:
+				wri3 = self.writer
+				wri4 = wri3.split("(")
+				wri5 = wri4[0]
+				return wri5
+			else:
+				return self.writer
 
 my_movie = Movie(getting_movie) # Making an instance of getting_movie dict 
 
-# GETTING A STRING OF THE DIRECTOR AND WRITER'S NAMES
-
+# GETTING A STRING OF THE PRINCIPLE DIRECTOR AND WRITER'S NAME
 movie_director = my_movie.get_director()
-print(movie_director)
-
 movie_writer = my_movie.get_writer()
-print(movie_writer)
 
 #____________________________________________________________________________________________________
 
-# PULLING SUGGESTIONS FROM WIKIPEDIA
+# TASK 5: PULLING SUGGESTIONS FROM WIKIPEDIA
 
 def get_wiki_suggs(input_q):
 
     # IF INPUTTED SEARCH QUERY IS CACHED
-	if input_q in CACHE_DICTION:
-		print("\nGetting Wikipedia suggestions from cached data...")
+	if input_q in CACHE_DICTION2:
+		#print("\nGetting Wikipedia suggestions from cached data...")
 
 		# GETTING WIKI SUGGESTIONS FROM CACHE DICTIONARY
-		wiki_dict = CACHE_DICTION[input_q]
+		wiki_dict = CACHE_DICTION2[input_q]
 
 	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 	# IF INPUTTED SEARCH QUERY IS NOT CACHED --- PULLING FROM WEB
 
 	else:
-		print("\nRetrieving Wikipedia suggestions from web...")
-
-		if "," in input_q:
-			names = input_q.split(',')
-			main_director_or_writer = names[0]
-			# Getting suggestions for wiki page of the MAIN director / writer (in the case that there are two)
-			wiki_suggs = wikipedia.search(main_director_or_writer)
-			# Getting full wiki page
-			wiki_page = wikipedia.WikipediaPage(wiki_suggs[0])
-
-		else:
-			# Getting suggestions of wiki page
-			wiki_suggs = wikipedia.search(input_q)
-			# Getting full page
-			wiki_page = wikipedia.WikipediaPage(wiki_suggs[0])
+		#print("\nRetrieving Wikipedia suggestions from web...")
+		# Getting suggestions of wiki page
+		wiki_suggs = wikipedia.search(input_q)
+		# Getting full page
+		wiki_page = wikipedia.WikipediaPage(wiki_suggs[0])
 
 		# CREATING DICTIONARY OF WIKI PAGE DATA
 		# BECAUSE WIKI_PAGE IS A CLASS OBJECT 
@@ -160,10 +180,10 @@ def get_wiki_suggs(input_q):
 		wiki_dict["content"] = wiki_page.content
 
 		# CACHING LIST OF SUGGESTIONS
-		CACHE_DICTION[input_q] = wiki_dict
+		CACHE_DICTION2[input_q] = wiki_dict
 
 	cached_suggs = open(CACHE_FNAME, 'w')
-	cached_suggs.write(json.dumps(CACHE_DICTION))
+	cached_suggs.write(json.dumps(CACHE_DICTION2))
 	cached_suggs.close()
 
 	# RETURNING DICTIONARY OF SUGGESTIONS
@@ -171,7 +191,7 @@ def get_wiki_suggs(input_q):
 
 #____________________________________________________________________________________________________
 
-# DEFINING FUNCTION TO INVOKE GET_WIKI_SUGGS FUNCTION
+# TASK 5: DEFINING FUNCTION GET_WIKI TO INVOKE GET_WIKI_SUGGS FUNCTION IF PROPER MOVIE INFO WAS ENTERED
 
 def get_wiki(person):
 	try:
@@ -182,14 +202,14 @@ def get_wiki(person):
 		print("\n\nOops! We don't seem to have the director and writer of that movie in our database. Please try again with another movie.\n")
 		sys.exit()
 
-# INVOKING GET_WIKI FUNCTION ON THE DIRECTOR AND WRITER NAMES
+# TASK 6: INVOKING GET_WIKI FUNCTION ON THE DIRECTOR AND WRITER NAMES
 
 director_wiki = get_wiki(movie_director)
 writer_wiki = get_wiki(movie_writer)
 
 #____________________________________________________________________________________________________
 
-# CREATING CLASS WIKIPAGE
+# TASK 7: CREATING CLASS WIKIPAGE
 
 class Wikipage(object):
 	def __init__(self, dict1):
@@ -200,13 +220,20 @@ class Wikipage(object):
 		self.content = dict1["content"]
 
 	def printable_list(self):
-		print("\nDirector background information:  \n" + self.summary)
+		print("\nBackground information:  \n" + self.summary)
+
+		counter1 = 0
 		print("\nSimilar pages: ")
 		for link in self.links[:6]:
-			print(link)
+			counter1 += 1
+			print(str(counter1) + ". " + link)
 		print("\nCategories: ")
+
+		counter2 = 0
 		for category in self.categories[:6]:
-			print(category)
+			counter2 += 1
+			print(str(counter2) + ". " + category)
+		print("\n")
 
 	def getting_all_content(self):
 		a = "Background Information: "
@@ -217,29 +244,88 @@ class Wikipage(object):
 
 		print(a+b+c+d)
 
+	def sections(self):
+		if len(self.sections) > 0:
+			return(sections)
+
 #____________________________________________________________________________________________________
 
-# CREATING TWO CLASS WIKIPAGE INSTANCES: ONE FOR THE DIRECTOR AND ONE FOR THE WRITER
+# TASK 8: CREATING TWO CLASS WIKIPAGE INSTANCES: ONE FOR THE PRINCIPLE DIRECTOR AND ONE FOR THE PRINCIPLE WRITER
 
 director_instance = Wikipage(director_wiki)
 writer_instance = Wikipage(writer_wiki)
 
+separator = " - - - - - - - - - - - - - - - - - - - - - - - - "
+
+print("\n" + separator + "\n\nMOVIE DIRECTOR: " + movie_director)
 director_instance.printable_list()
 
-#printable_list(director_instance)
+print(separator + "\n\nMOVIE WRITER: " + movie_writer)
+writer_instance.printable_list()
 
 #_____________________________________________________________________________________________________
 
+# TASK 9: SETTING UP DATABASE FILE AND TABLES
 
+conn = sqlite3.connect('si206finalproject.db')
+cur = conn.cursor()
 
+# TABLE 1 MOVIES
+cur.execute("DROP TABLE IF EXISTS Movies")
+statement1 = "CREATE TABLE IF NOT EXISTS"
+statement1 += 'Movies (movie_title PRIMARY KEY TEXT, director TEXT, writer TEXT, plot TEXT, imdb_rating REAL)'
 
+cur.execute(statement1)
 
+# TABLE 2 DIRECTORS
+cur.execute("DROP TABLE IF EXISTS Directors")
+statement2 = "CREATE TABLE IF NOT EXISTS"
+statement2 += 'Directors (movie_title PRIMARY KEY TEXT, summary TEXT, categories TEXT, links TEXT, sections TEXT, content TEXT)'
 
+cur.execute(statement2)
 
+# TABLE 3 WRITERS
+cur.execute("DROP TABLE IF EXISTS Writers")
+statement3 = "CREATE TABLE IF NOT EXISTS"
+statement3 += 'Writers (movie_title PRIMARY KEY TEXT, summary TEXT, categories TEXT, links TEXT, sections TEXT, content TEXT)'
 
+cur.execute(statement3)
 
+#_____________________________________________________________________________________________________
 
+# NEED TO REWRITE TEST CASES
 
+#class SQL(unittest.TestCase):
+	def test_db_1(self):
+		conn = sqlite3.connect('si206finalproject.db')		
+		cur = conn.cursor()
+		cur.execute('SELECT * FROM Suggestions');
+		result = cur.fetchall()
+		self.assertTrue(len(result)>=10, "Testing that 10 strain suggestions were aggregated into the Suggestions table of the database")
+		conn.close()
+	def test_db_2(self):
+		conn = sqlite3.connect('si206finalproject.db')		
+		cur = conn.cursor()
+		cur.execute('SELECT * FROM Effects');
+		result = cur.fetchall()
+		self.assertTrue(len(result)>=10, "Testing that 10 strain suggestions were aggregated into the Effects table of the database")
+		conn.close()
+	def test_db_3(self):
+		conn = sqlite3.connect('si206finalproject.db')		
+		cur = conn.cursor()
+		cur.execute('SELECT * FROM Effects');
+		result = cur.fetchall()
+		self.assertTrue(len(result[1])==14, "Testing that 14 columns represent the 14 effect rankings")
+		conn.close()
+	def test_db_4(self):
+		conn = sqlite3.connect('si206finalproject.db')		
+		cur = conn.cursor()
+		cur.execute('SELECT * FROM Products');
+		result = cur.fetchall()
+		self.assertTrue(len(result)>=10, "Testing that 10 strain suggestions were aggregated into the Products database")
+		conn.close()
+
+#unittest.main(verbosity=2)
 
 
 
