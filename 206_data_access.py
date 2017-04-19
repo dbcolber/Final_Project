@@ -78,6 +78,16 @@ getting_movie_2 = get_movies(in2)
 in3 = "Now You See Me"
 getting_movie_3 = get_movies(in3)
 
+list_of_titles = [in1,in2,in3]
+
+list_of_movie_dicts = [getting_movie_1, getting_movie_2, getting_movie_3]
+#print(list_of_movie_dicts)
+
+movie_dict = {}
+for title in list_of_titles:
+	movie_dict[title] = get_movies(title)
+
+
 # getting_movie is a dictionary of info for the single movie inputted
 
 # print(getting_movie) WORKING --> prints a dict of movie info
@@ -154,6 +164,8 @@ my_movie_3 = Movie(getting_movie_3)
 
 # GETTING STRINGS OF ALL PRINCIPLE DIRECTOR AND WRITER'S NAMES
 
+#### ESTABLISH INDIVIDUAL VARIABLES TO USE FOR TEXT FILE AGGREGATION
+
 movie_director_1 = my_movie_1.get_director()
 movie_writer_1 = my_movie_1.get_writer()
 
@@ -162,6 +174,11 @@ movie_writer_2 = my_movie_2.get_writer()
 
 movie_director_3 = my_movie_3.get_director()
 movie_writer_3 = my_movie_3.get_writer()
+
+
+list_of_directors = [movie_director_1, movie_director_2, movie_director_3]
+list_of_writers = [movie_writer_1, movie_writer_2, movie_writer_3]
+
 
 #____________________________________________________________________________________________________
 
@@ -232,6 +249,19 @@ writer_wiki_2 = get_wiki(movie_writer_2)
 director_wiki_3 = get_wiki(movie_director_3)
 writer_wiki_3 = get_wiki(movie_writer_3)
 
+# Create dicts of all directors' and writers' wikis to use for db
+
+all_dir_data = {}
+for director in list_of_directors:
+	all_dir_data[director] = get_wiki(director)
+
+all_wri_data = {}
+for writer in list_of_writers:
+	all_wri_data[writer] = get_wiki(writer)
+
+#print(all_dir_data)
+#print(all_wri_data)
+
 #____________________________________________________________________________________________________
 
 # TASK 7: CREATING CLASS WIKIPAGE
@@ -276,6 +306,8 @@ class Wikipage(object):
 #____________________________________________________________________________________________________
 
 # TASK 8: CREATING CLASS WIKIPAGE INSTANCES: ONE FOR EACH PRINCIPLE DIRECTOR AND ONE FOR EACH PRINCIPLE WRITER
+
+# Will be used for text file aggregation
 
 director_instance_1 = Wikipage(director_wiki_1)
 writer_instance_1 = Wikipage(writer_wiki_1)
@@ -325,10 +357,19 @@ cur.execute(statement3)
 #_____________________________________________________________________________________________________
 # TASK 10: LOAD MOVIES AND WIKIS INTO DB
 
+# DB 1 - LOADING MOVIE DATA
 
+for movie in movie_dict:
+	insert_movie_info = "INSERT INTO Movies VALUES (?,?,?,?,?)"
+	movie_66 = movie_dict[movie]
+	movie_stuff = (movie, movie_66['director'], movie_66['writer'], movie_66['plot'], movie_66['imdb_rating'])
+	cur.execute(insert_movie_info, movie_stuff)
 
+# DB 2 - LOAD DIRECTOR DATA
 
+# DB 3 - LOAD WRITER DATA
 
+conn.commit()
 
 #_____________________________________________________________________________________________________
 # TASK 11: COMPILE OUTPUT TEXT FILES FOR USER
@@ -337,39 +378,56 @@ cur.execute(statement3)
 
 #_____________________________________________________________________________________________________
 
-# NEED TO REWRITE TEST CASES
+# TASK 12: TEST CASES
+#class ClassTests(unittest.TestCase):
+#	def test_movie_title(self):
+#        movie1 = get_movies("Inside Out")
+#        movie1_instance = Movie(movie1)
+#        self.assertEqual(type(movie1_instance.title), string, "Testing that the instance's movie title is a string")
+#    def test_class_director_method(self):
+#        movie1 = get_movies("Inside Out")
+#        movie1_instance = Movie(movie1)
+#        self.assertEqual(type(movie1_instance.get_director()), string, "Testing that the method get_director returns a string")
+#    def test_class_writer_method(self):
+#        movie1 = get_movies("Inside Out")
+#        movie1_instance = Movie(movie1)
+#        self.assertEqual(type(movie1_instance.get_writer()), string, "Testing that the method get_writer returns a string")
+#    def test_movie_str(self):
+#        movie1 = get_movies("Inside Out")
+#        movie1_instance = Movie(movie1)
+#        self.assertEqual(type(movie1_instance.print_all_data(), string, "Testing that the method print_all_data returns a string")
+#	def test_wiki(self):
+#		 movie1 = get_movies("Inside Out")
+#        movie1_instance = Movie(movie1)
+#        movie1_dir = movie1_instance.get_director()
+#        wiki1 = Wikipage(movie1_dir)
+#        self.assertEqual(type(wiki1.printable_list()), string, "Testing that Wikipage method printable_list prints a str")
 
-#class SQL(unittest.TestCase):
+#class DbTests(unittest.TestCase):
 #	def test_db_1(self):
 #		conn = sqlite3.connect('si206finalproject.db')		
 #		cur = conn.cursor()
-#		cur.execute('SELECT * FROM Suggestions');
+#		cur.execute('SELECT * FROM Movies');
 #		result = cur.fetchall()
-#		self.assertTrue(len(result)>=10, "Testing that 10 strain suggestions were aggregated into the Suggestions table of the database")
+#		self.assertTrue(len(result)>=3, "Testing that 3 movies were aggregated into the Movies table")
 #		conn.close()
 #	def test_db_2(self):
 #		conn = sqlite3.connect('si206finalproject.db')		
 #		cur = conn.cursor()
-#		cur.execute('SELECT * FROM Effects');
+#		cur.execute('SELECT * FROM Directors');
 #		result = cur.fetchall()
-#		self.assertTrue(len(result)>=10, "Testing that 10 strain suggestions were aggregated into the Effects table of the database")
+#		self.assertTrue(len(result)>=10, "Testing that 3 directors were aggregated into the Directors table of the database")
 #		conn.close()
 #	def test_db_3(self):
 #		conn = sqlite3.connect('si206finalproject.db')		
 #		cur = conn.cursor()
-#		cur.execute('SELECT * FROM Effects');
+#		cur.execute('SELECT * FROM Writers');
 #		result = cur.fetchall()
-#		self.assertTrue(len(result[1])==14, "Testing that 14 columns represent the 14 effect rankings")
-#		conn.close()
-#	def test_db_4(self):
-#		conn = sqlite3.connect('si206finalproject.db')		
-#		cur = conn.cursor()
-#		cur.execute('SELECT * FROM Products');
-#		result = cur.fetchall()
-#		self.assertTrue(len(result)>=10, "Testing that 10 strain suggestions were aggregated into the Products database")
+#		self.assertTrue(len(result[1])==14, "Testing that 3 writers in Writer DB")
 #		conn.close()
 
-#unittest.main(verbosity=2)
+#if __name__ == "__main__"
+#	unittest.main(verbosity=2)
 
 
 
