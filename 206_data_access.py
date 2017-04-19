@@ -66,10 +66,18 @@ def get_movies(user_query):
 
 #____________________________________________________________________________________________________
 
-# TASK 3: Running get_movies function based on user input
+# TASK 3: Running get_movies function based on input
 
-in1 = input("\nEnter a movie title:  \n")
-getting_movie = get_movies(in1)
+#in1 = input("\nEnter a movie title:  \n")
+in1 = "Harry Potter"
+getting_movie_1 = get_movies(in1)
+
+in2 = "Date Night"
+getting_movie_2 = get_movies(in2)
+
+in3 = "Now You See Me"
+getting_movie_3 = get_movies(in3)
+
 # getting_movie is a dictionary of info for the single movie inputted
 
 # print(getting_movie) WORKING --> prints a dict of movie info
@@ -138,11 +146,22 @@ class Movie(object):
 			else:
 				return self.writer
 
-my_movie = Movie(getting_movie) # Making an instance of getting_movie dict 
+# Making instances of each getting_movie dict
+my_movie_1 = Movie(getting_movie_1) 
+my_movie_2 = Movie(getting_movie_2)
+my_movie_3 = Movie(getting_movie_3)
 
-# GETTING A STRING OF THE PRINCIPLE DIRECTOR AND WRITER'S NAME
-movie_director = my_movie.get_director()
-movie_writer = my_movie.get_writer()
+
+# GETTING STRINGS OF ALL PRINCIPLE DIRECTOR AND WRITER'S NAMES
+
+movie_director_1 = my_movie_1.get_director()
+movie_writer_1 = my_movie_1.get_writer()
+
+movie_director_2 = my_movie_2.get_director()
+movie_writer_2 = my_movie_2.get_writer()
+
+movie_director_3 = my_movie_3.get_director()
+movie_writer_3 = my_movie_3.get_writer()
 
 #____________________________________________________________________________________________________
 
@@ -204,8 +223,14 @@ def get_wiki(person):
 
 # TASK 6: INVOKING GET_WIKI FUNCTION ON THE DIRECTOR AND WRITER NAMES
 
-director_wiki = get_wiki(movie_director)
-writer_wiki = get_wiki(movie_writer)
+director_wiki_1 = get_wiki(movie_director_1)
+writer_wiki_1 = get_wiki(movie_writer_1)
+
+director_wiki_2 = get_wiki(movie_director_2)
+writer_wiki_2 = get_wiki(movie_writer_2)
+
+director_wiki_3 = get_wiki(movie_director_3)
+writer_wiki_3 = get_wiki(movie_writer_3)
 
 #____________________________________________________________________________________________________
 
@@ -250,18 +275,24 @@ class Wikipage(object):
 
 #____________________________________________________________________________________________________
 
-# TASK 8: CREATING TWO CLASS WIKIPAGE INSTANCES: ONE FOR THE PRINCIPLE DIRECTOR AND ONE FOR THE PRINCIPLE WRITER
+# TASK 8: CREATING CLASS WIKIPAGE INSTANCES: ONE FOR EACH PRINCIPLE DIRECTOR AND ONE FOR EACH PRINCIPLE WRITER
 
-director_instance = Wikipage(director_wiki)
-writer_instance = Wikipage(writer_wiki)
+director_instance_1 = Wikipage(director_wiki_1)
+writer_instance_1 = Wikipage(writer_wiki_1)
+
+director_instance_2 = Wikipage(director_wiki_2)
+writer_instance_2 = Wikipage(writer_wiki_2)
+
+director_instance_3 = Wikipage(director_wiki_3)
+writer_instance_3 = Wikipage(writer_wiki_3)
 
 separator = " - - - - - - - - - - - - - - - - - - - - - - - - "
 
-print("\n" + separator + "\n\nMOVIE DIRECTOR: " + movie_director)
-director_instance.printable_list()
+#print("\n" + separator + "\n\nMOVIE DIRECTOR: " + movie_director)
+#director_instance.printable_list()
 
-print(separator + "\n\nMOVIE WRITER: " + movie_writer)
-writer_instance.printable_list()
+#print(separator + "\n\nMOVIE WRITER: " + movie_writer)
+#writer_instance.printable_list()
 
 #_____________________________________________________________________________________________________
 
@@ -272,24 +303,37 @@ cur = conn.cursor()
 
 # TABLE 1 MOVIES
 cur.execute("DROP TABLE IF EXISTS Movies")
-statement1 = "CREATE TABLE IF NOT EXISTS"
-statement1 += 'Movies (movie_title PRIMARY KEY TEXT, director TEXT, writer TEXT, plot TEXT, imdb_rating REAL)'
+statement1 = "CREATE TABLE IF NOT EXISTS "
+statement1 += 'Movies (movie_title TEXT PRIMARY KEY, director TEXT, writer TEXT, plot TEXT, imdb_rating REAL)'
 
-#cur.execute(statement1)
+cur.execute(statement1)
 
 # TABLE 2 DIRECTORS
 cur.execute("DROP TABLE IF EXISTS Directors")
-statement2 = "CREATE TABLE IF NOT EXISTS"
-statement2 += 'Directors (movie_title PRIMARY KEY TEXT, summary TEXT, categories TEXT, links TEXT, sections TEXT, content TEXT)'
+statement2 = "CREATE TABLE IF NOT EXISTS "
+statement2 += 'Directors (movie_title TEXT PRIMARY KEY, summary TEXT, categories TEXT, links TEXT, sections TEXT, content TEXT)'
 
-#cur.execute(statement2)
+cur.execute(statement2)
 
 # TABLE 3 WRITERS
 cur.execute("DROP TABLE IF EXISTS Writers")
-statement3 = "CREATE TABLE IF NOT EXISTS"
-statement3 += 'Writers (movie_title PRIMARY KEY TEXT, summary TEXT, categories TEXT, links TEXT, sections TEXT, content TEXT)'
+statement3 = "CREATE TABLE IF NOT EXISTS "
+statement3 += 'Writers (movie_title TEXT PRIMARY KEY, summary TEXT, categories TEXT, links TEXT, sections TEXT, content TEXT)'
 
-#cur.execute(statement3)
+cur.execute(statement3)
+
+#_____________________________________________________________________________________________________
+# TASK 10: LOAD MOVIES AND WIKIS INTO DB
+
+
+
+
+
+
+#_____________________________________________________________________________________________________
+# TASK 11: COMPILE OUTPUT TEXT FILES FOR USER
+
+# USE METHODS IN CLASS DEFINITIONS
 
 #_____________________________________________________________________________________________________
 
