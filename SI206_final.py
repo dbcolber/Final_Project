@@ -7,6 +7,7 @@ import sys
 # GENERAL REQUEST / JSON IMPORTS
 import requests
 import json
+import re
 
 # API / DATA COLLECTING WRAPPERS
 import omdb
@@ -72,7 +73,7 @@ def get_movies(user_query):
 in1 = "Jaws"
 getting_movie_1 = get_movies(in1)
 
-in2 = "No Country for Old Men"
+in2 = "Alice in Wonderland"
 getting_movie_2 = get_movies(in2)
 
 in3 = "King Kong"
@@ -86,7 +87,6 @@ list_of_movie_dicts = [getting_movie_1, getting_movie_2, getting_movie_3]
 movie_dict = {}
 for title in list_of_titles:
 	movie_dict[title] = get_movies(title)
-
 
 # getting_movie is a dictionary of info for the single movie inputted
 
@@ -103,10 +103,8 @@ class Movie(object):
 		self.writer = getting_movie["writer"]
 		self.plot = getting_movie["plot"]
 		self.rating = getting_movie["imdb_rating"]
-
-	def __str__(self):
-		stringformation = (self.title, self.plot, self.rating)
-		return "Movie Title: {}\nSynopsis: {}\nIMBD Rating: {}\n".format(stringformation)
+		self.runtime = getting_movie["runtime"]
+		self.rated = getting_movie["rated"]
 
 	def print_all_data(self):
 		a = "Movie Title: {}\n".format(self.title)
@@ -114,7 +112,9 @@ class Movie(object):
 		c = "IMDB Rating: {}\n".format(self.rating)
 		d = "Director: {}\n".format(self.director)
 		e = "Writer: {}\n".format(self.writer)
-		return a+b+c+d+e
+		f = "Runtime: {}\n".format(self.runtime)
+		g = "Rating: {}\n".format(self.rated)
+		return a+b+c+d+e+f+g
 
 	def get_director(self):
 		if "," in self.director:
@@ -161,10 +161,11 @@ my_movie_1 = Movie(getting_movie_1)
 my_movie_2 = Movie(getting_movie_2)
 my_movie_3 = Movie(getting_movie_3)
 
+movie_instance_list = [my_movie_1, my_movie_2, my_movie_3]
 
 # GETTING STRINGS OF ALL PRINCIPLE DIRECTOR AND WRITER'S NAMES
 
-#### ESTABLISH INDIVIDUAL VARIABLES TO USE FOR TEXT FILE AGGREGATION
+#### ESTABLISH INDIVIDUAL VARIABLES TO USE FOR DB AGGREGATION
 
 movie_director_1 = my_movie_1.get_director()
 movie_writer_1 = my_movie_1.get_writer()
@@ -175,10 +176,8 @@ movie_writer_2 = my_movie_2.get_writer()
 movie_director_3 = my_movie_3.get_director()
 movie_writer_3 = my_movie_3.get_writer()
 
-
 list_of_directors = [movie_director_1, movie_director_2, movie_director_3]
 list_of_writers = [movie_writer_1, movie_writer_2, movie_writer_3]
-
 
 #____________________________________________________________________________________________________
 
@@ -249,15 +248,10 @@ writer_wiki_2 = get_wiki(movie_writer_2)
 director_wiki_3 = get_wiki(movie_director_3)
 writer_wiki_3 = get_wiki(movie_writer_3)
 
-# Create dicts of all directors' and writers' wikis to use for db
+# Use dictionary comprehension to create dicts of all directors' and writers' wikis to use for db
 
-all_dir_data = {}
-for director in list_of_directors:
-	all_dir_data[director] = get_wiki(director)
-
-all_wri_data = {}
-for writer in list_of_writers:
-	all_wri_data[writer] = get_wiki(writer)
+all_dir_data = {director: get_wiki(director) for director in list_of_directors}
+all_wri_data = {writer: get_wiki(writer) for writer in list_of_writers}
 
 #____________________________________________________________________________________________________
 
@@ -272,29 +266,27 @@ class Wikipage(object):
 		self.content = dict1["content"]
 
 	def printable_list(self):
-		print("\nBackground information:  \n" + self.summary)
+		return("\nBackground information:  \n" + self.summary)
 
 		counter1 = 0
-		print("\nSimilar pages: ")
+		return("\nSimilar pages: ")
 		for link in self.links[:6]:
 			counter1 += 1
-			print(str(counter1) + ". " + link)
-		print("\nCategories: ")
+			return(str(counter1) + ". " + link)
+		return("\nCategories: ")
 
 		counter2 = 0
 		for category in self.categories[:6]:
 			counter2 += 1
-			print(str(counter2) + ". " + category)
-		print("\n")
+			return(str(counter2) + ". " + category)
+		return("\n")
 
 	def getting_all_content(self):
-		a = "Background Information: "
-		b = self.summary
 
 		c = "Complete Wikipedia Page: "
 		d = self.content
 
-		print(a+b+c+d)
+		return(c+d)
 
 
 
@@ -312,6 +304,10 @@ writer_instance_2 = Wikipage(writer_wiki_2)
 
 director_instance_3 = Wikipage(director_wiki_3)
 writer_instance_3 = Wikipage(writer_wiki_3)
+
+director_instances_list = [director_instance_1, director_instance_2, director_instance_3]
+writer_instances_list = [writer_instance_1, writer_instance_2, writer_instance_3]
+
 
 separator = " - - - - - - - - - - - - - - - - - - - - - - - - "
 
@@ -331,7 +327,7 @@ cur = conn.cursor()
 # TABLE 1 MOVIES
 cur.execute("DROP TABLE IF EXISTS Movies")
 statement1 = "CREATE TABLE IF NOT EXISTS "
-statement1 += 'Movies (movie_title TEXT PRIMARY KEY, director TEXT, writer TEXT, plot TEXT, imdb_rating REAL)'
+statement1 += 'Movies (movie_title TEXT PRIMARY KEY, director TEXT, writer TEXT, plot TEXT, imdb_rating REAL, runtime REAL, rated TEXT)'
 
 cur.execute(statement1)
 
@@ -355,9 +351,9 @@ cur.execute(statement3)
 # DB 1 - LOADING MOVIE DATA
 
 for movie in movie_dict:
-	insert_movie_info = "INSERT INTO Movies VALUES (?,?,?,?,?)"
+	insert_movie_info = "INSERT INTO Movies VALUES (?,?,?,?,?,?,?)"
 	movie_66 = movie_dict[movie]
-	movie_stuff = (movie, movie_66['director'], movie_66['writer'], movie_66['plot'], movie_66['imdb_rating'])
+	movie_stuff = (movie, movie_66['director'], movie_66['writer'], movie_66['plot'], float(movie_66['imdb_rating']), movie_66['runtime'], str(movie_66['rated']))
 	cur.execute(insert_movie_info, movie_stuff)
 
 # DB 2 - LOAD DIRECTOR DATA
@@ -379,13 +375,64 @@ for writer in all_wri_data:
 conn.commit()
 
 #_____________________________________________________________________________________________________
-# TASK 11: COMPILE OUTPUT TEXT FILES FOR USER
+# TASK 11: MAKE QUERIES TO DB
+
+# QUERY 1 - EXTRACTING DIRECTORS WHOSE MOVIES HAVE A RATING OF 7 OR HIGHER 
+query1 = 'SELECT Directors.director FROM Directors INNER JOIN Movies on Directors.director = Movies.director ORDER BY imdb_rating'
+cur.execute(query1)
+query1_object = cur.fetchall()
+
+# QUERY 2 - GETTING ALL MOVIES THAT ARE PG
+query2 = 'SELECT writer, LENGTH(content) FROM Writers ORDER BY LENGTH(content)'
+cur.execute(query2)
+query2_object = cur.fetchall()
+
+# QUERY 3
+query3 = 'SELECT Directors.director, Movies.runtime FROM Directors INNER JOIN Movies on Directors.director = Movies.director'
+cur.execute(query3)
+query3_object = cur.fetchall()
+
+#_____________________________________________________________________________________________________
+# TASK 12: COMPILE OUTPUT TEXT FILES FOR USER
 
 # USE METHODS IN CLASS DEFINITIONS
+ 
+txt_file = open('SI206_final_textfile.txt', 'w')
+txt_file.write("\nMOVIE SUMMARIES\nA compilation of movie information, as well as biographies regarding the principle directors and writers\n\n")
+
+new_movie_list = sorted(movie_instance_list, key = lambda x:x.rating, reverse = True)
+#print(list(x.rating for x in new_movie_list))
+
+all_movie_text = list(map(lambda x: x.print_all_data(), new_movie_list))
+for item in all_movie_text:
+	txt_file.write(item)
+	txt_file.write("\n\n")
+
+txt_file.write("===========================================================\n\nMOVIE DIRECTORS WIKI INFO (in order of highest rating movie rating) : \n")
+# MOVIE DIRECTOR WIKI INFO
+
+for director in director_instances_list:
+	txt_file.write(str(director.printable_list()))
+	txt_file.write(str(director.getting_all_content()))
+
+
+txt_file.write("===========================================================\n\nMOVIE WRITERS WIKI INFO: \n\n")
+# MOVIE WRITER WIKI INFO
+for writer in writer_instances_list:
+	txt_file.write(str(writer.printable_list()))
+	txt_file.write(str(writer.getting_all_content()))
+
+txt_file.write("\n\n===========================================================\n\nFUN FACTS ABOUT THE MOVIES, DIRECTORS, AND WRITERS!\n\n")
+txt_file.write("Director with the best rated movie: " + str(query1_object[0]) + "\n")
+txt_file.write("Writer with the longest Wikipedia page: " + str(query2_object[0]) + "\n")
+txt_file.write("Director with the longest movie runtime: " + str(query3_object[0]) + "\n")
+
+
+txt_file.close()
 
 #_____________________________________________________________________________________________________
 
-# TASK 12: TEST CASES
+# TASK 13: TEST CASES
 #class ClassTests(unittest.TestCase):
 #	def test_movie_title(self):
 #        movie1 = get_movies("Inside Out")
